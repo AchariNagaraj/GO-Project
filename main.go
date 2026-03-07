@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"minigit/cmd"
-	"minigit/repository"
 )
 
 func main() {
@@ -23,19 +22,7 @@ func main() {
 			fmt.Println(err)
 		}
 
-	case "test":
-		data := []byte("hello world")
-
-		hash := repository.Hash(data)
-
-		repository.WriteObject(hash, data)
-
-		obj, _ := repository.ReadObject(hash)
-
-		fmt.Println("Stored object:", string(obj))
-
 	default:
 		fmt.Println("Unknown command")
 	}
-
 }
