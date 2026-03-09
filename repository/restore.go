@@ -60,9 +60,9 @@ func RestoreSnapshot(commitHash string) error {
 	}
 
 	// Restore files from blobs
-	for filename, blobHash := range commit.Files {
+	for _, filename := range commit.Files {
 
-		blobData, err := ReadObject(blobHash)
+		blobData, err := ReadObject(filename)
 		if err != nil {
 			return err
 		}
