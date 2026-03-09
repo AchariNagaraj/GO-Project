@@ -35,13 +35,27 @@ func RestoreSnapshot(commitHash string) error {
 	}
 
 	// Delete previously tracked files
-	currentBranch, _ := GetCurrentBranch()
-	previousHash, _ := GetBranchCommit(currentBranch)
+	currentBranch, err := GetCurrentBranch()
+	if err != nil {
+		return err
+	}
+
+	previousHash, err := GetBranchCommit(currentBranch)
+	if err != nil {
+		return err
+	}
 
 	if previousHash != "" && previousHash != "null" {
-		previousCommit, _ := ParseCommit(previousHash)
-		for filename := range previousCommit.Files {
-			os.Remove(filename)
+
+		previousCommit, err := ParseCommit(previousHash)
+		if err != nil {
+			return err
+		}
+
+		for _, filename := range previousCommit.Files {
+			if err := os.Remove(filename); err != nil && !os.IsNotExist(err) {
+				return err
+			}
 		}
 	}
 
