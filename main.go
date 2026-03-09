@@ -28,7 +28,11 @@ func main() {
 			fmt.Println("Usage: minigit add <file>")
 			return
 		}
-		repository.AddToIndex(os.Args[2])
+
+		err := repository.AddToIndex(os.Args[2])
+		if err != nil {
+			fmt.Println(err)
+		}
 
 	case "commit":
 		if len(os.Args) < 3 {
