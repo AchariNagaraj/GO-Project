@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -21,8 +21,22 @@ type Commit struct {
 
 // helper to hash content
 func hashContent(data []byte) string {
-	hash := sha1.Sum(data)
+	hash := sha256.Sum256(data)
 	return hex.EncodeToString(hash[:])
+}
+
+func currentTimestamp() (string, error) {
+	tz := strings.TrimSpace(os.Getenv("MINIGIT_TZ"))
+	if tz == "" {
+		tz = "UTC"
+	}
+
+	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		return "", fmt.Errorf("invalid timezone %q: %w", tz, err)
+	}
+
+	return time.Now().In(loc).Format("2006-01-02 15:04:05 MST"), nil
 }
 
 // read HEAD
@@ -65,6 +79,7 @@ func CreateCommit(message string) error {
 	for _, file := range files {
 
 		content, err := os.ReadFile(file)
+		err = os.Chmod(file, 0644)
 		if err != nil {
 			return err
 		}
@@ -87,12 +102,10 @@ func CreateCommit(message string) error {
 	// get parent commit
 	parent, _ := readHEAD()
 
-	loc, err := time.LoadLocation("Asia/Kolkata")
+	timestamp, err := currentTimestamp()
 	if err != nil {
-		return err // or handle as needed
+		return err
 	}
-
-	timestamp := time.Now().In(loc).Format("2006-01-02 15:04:05 MST")
 
 	commitContent := fmt.Sprintf(
 		"parent:%s\n"+
