@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"minigit/cmd"
+	"goproject/cmd"
+	"goproject/repository"
 )
 
 func main() {
@@ -21,6 +22,23 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 		}
+
+	case "add":
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: minigit add <file>")
+			return
+		}
+		repository.AddToIndex(os.Args[2])
+
+	case "commit":
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: minigit commit <message>")
+			return
+		}
+		repository.CreateCommit(os.Args[2])
+
+	case "log":
+		repository.ShowLog()
 
 	default:
 		fmt.Println("Unknown command")
