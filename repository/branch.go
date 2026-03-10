@@ -47,3 +47,32 @@ func CreateBranch(name string) error {
 
 	return os.WriteFile(".minigit/refs/"+name, []byte(currentHash), 0644)
 }
+
+
+//Switching branch
+func CheckoutBranch(name string) error {
+
+	if !BranchExists(name) {
+		return fmt.Errorf("branch does not exist")
+	}
+
+	hash, err := GetBranchCommit(name)
+	if err != nil {
+		return err
+	}
+
+	err = SetCurrentBranch(name)
+	if err != nil {
+		return err
+	}
+
+	if hash != "" && hash != "null" {
+		err = RestoreSnapshot(hash)
+		if err != nil {
+			return err
+		}
+	}
+
+	fmt.Println("Switched to branch:", name)
+	return nil
+}

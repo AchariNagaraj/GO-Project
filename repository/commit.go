@@ -25,22 +25,6 @@ func hashContent(data []byte) string {
 	return hex.EncodeToString(hash[:])
 }
 
-// read HEAD
-func readHEAD() (string, error) {
-	headPath := filepath.Join(".minigit", "HEAD")
-	data, err := os.ReadFile(headPath)
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(string(data)), nil
-}
-
-// update HEAD
-func updateHEAD(commitHash string) error {
-	headPath := filepath.Join(".minigit", "HEAD")
-	return os.WriteFile(headPath, []byte(commitHash), 0644)
-}
-
 // CreateCommit creates a new commit
 func CreateCommit(message string) error {
 
@@ -84,12 +68,18 @@ func CreateCommit(message string) error {
 		blobEntries = append(blobEntries, fmt.Sprintf("%s %s", hash, file))
 	}
 
-	// get parent commit
-	parent, _ := readHEAD()
+	// get current branch
+	currentBranch, err := GetCurrentBranch()
+	if err != nil {
+		return err
+	}
+
+	// get parent commit from branch
+	parent, _ := GetBranchCommit(currentBranch)
 
 	loc, err := time.LoadLocation("Asia/Kolkata")
 	if err != nil {
-		return err // or handle as needed
+		return err
 	}
 
 	timestamp := time.Now().In(loc).Format("2006-01-02 15:04:05 MST")
@@ -114,8 +104,8 @@ func CreateCommit(message string) error {
 		return err
 	}
 
-	// update HEAD
-	err = updateHEAD(commitHash)
+	// update branch pointer instead of HEAD
+	err = UpdateBranchCommit(currentBranch, commitHash)
 	if err != nil {
 		return err
 	}

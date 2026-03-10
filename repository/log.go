@@ -49,17 +49,22 @@ func ShowLog() error {
 		return err
 	}
 
-	current, err := readHEAD()
+	branch, err := GetCurrentBranch()
 	if err != nil {
 		return err
 	}
 
-	if current == "" {
+	current, err := GetBranchCommit(branch)
+	if err != nil {
+		return err
+	}
+
+	if current == "" || current == "null" {
 		fmt.Println("No commits yet")
 		return nil
 	}
 
-	for current != "" {
+	for current != "" && current != "null" {
 
 		commit, err := ParseCommit(current)
 		if err != nil {

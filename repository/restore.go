@@ -3,6 +3,7 @@ package repository
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 // Hard reset implementation
@@ -60,9 +61,18 @@ func RestoreSnapshot(commitHash string) error {
 	}
 
 	// Restore files from blobs
-	for _, filename := range commit.Files {
+	for _, entry := range commit.Files {
 
-		blobData, err := ReadObject(filename)
+		parts := strings.Split(entry, " ")
+
+		if len(parts) != 2 {
+			return fmt.Errorf("invalid file entry: %s", entry)
+		}
+
+		blobHash := parts[0]
+		filename := parts[1]
+
+		blobData, err := ReadObject(blobHash)
 		if err != nil {
 			return err
 		}

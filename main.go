@@ -58,6 +58,17 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 		}
+	
+	case "checkout":
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: minigit checkout <branch>")
+			return
+		}
+
+		err := repository.CheckoutBranch(os.Args[2])
+		if err != nil {
+			fmt.Println(err)
+		}
 
 	case "reset":
 		if len(os.Args) < 3 {
